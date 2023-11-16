@@ -1,15 +1,5 @@
 from enum import Enum
 
-def clean_chord(chord: str):
-  if len(chord)>1:
-    if chord[1] not in ['b', '#']:
-        result = chord[:1]
-    else:
-      result = chord[:2]
-  else:
-     result = chord
-  return result
-
 class Interval(Enum):
     UNISON = (0, 0)
     MINOR_SECOND = (1, 1)
@@ -57,3 +47,47 @@ class Note(Enum):
 class Dir(Enum):
    UP   = 0
    DOWN = 1
+
+def clean_chord(chord: str):
+  if len(chord)>1:
+    if chord[1] not in ['b', '#']:
+        result = chord[:1]
+        remainder = chord[1:]
+    else:
+      result = chord[:2]
+      remainder = chord[2:]
+  else:
+     result = chord
+     remainder = ""
+  print(f'Original: {chord}\nCleaned: {result}\nRemainder: {remainder}')
+  recreate = result + remainder
+  print(f'Recreation: {recreate}\n')
+  return result, remainder
+
+def transpose_chord(origin: str, delta_pitch_class: int, delta_semitones: int) -> str:
+  note_origin = Note[origin.replace("#", "sharp").replace("b", "flat")]
+  target_note = None  
+
+  target_pitch_class = (note_origin.value[2] + delta_pitch_class) % 7
+  target_semitone = (note_origin.value[1] + delta_semitones) % 12
+
+  for note in Note:
+    if (note.value[1], note.value[2]) == (target_semitone, target_pitch_class):
+        target_note = note.value[0]
+        break
+  
+  # Edge case handling
+  if target_note is None and delta_pitch_class==1:
+     for note in Note:
+        if (note.value[1], note.value[2]) == (target_semitone, note_origin.value[2]):
+          target_note = note.value[0]
+          break
+
+  if target_note is None:
+    print(f'\nTransposition error.\nOrigin: {origin}')
+    print(f'Scale Degrees: {note_origin.value[2]} + {delta_pitch_class}')
+    print(f'Semitones: {note_origin.value[1]} + {delta_semitones}')
+    target_note = "ERROR"
+
+  return target_note
+
