@@ -1,0 +1,12 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Word documents
+*.docx
+*.doc
+
+#VScode files
+.vscode/
