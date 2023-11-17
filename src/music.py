@@ -51,18 +51,16 @@ class Dir(Enum):
 def clean_chord(chord: str):
   if len(chord)>1:
     if chord[1] not in ['b', '#']:
-        result = chord[:1]
-        remainder = chord[1:]
+        root = chord[:1]
+        quality = chord[1:]
     else:
-      result = chord[:2]
-      remainder = chord[2:]
+      root = chord[:2]
+      quality = chord[2:]
   else:
-     result = chord
-     remainder = ""
-  print(f'Original: {chord}\nCleaned: {result}\nRemainder: {remainder}')
-  recreate = result + remainder
-  print(f'Recreation: {recreate}\n')
-  return result, remainder
+     root = chord
+     quality = ""
+
+  return root, quality
 
 def transpose_chord(origin: str, delta_pitch_class: int, delta_semitones: int) -> str:
   note_origin = Note[origin.replace("#", "sharp").replace("b", "flat")]

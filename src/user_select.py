@@ -1,10 +1,10 @@
 import tkinter as tk
 from tkinter import filedialog
 from tkinter import ttk
-import music
-from music import Dir
-from music import Interval
-from music import Note
+import src.music as music
+from src.music import Dir
+from src.music import Interval
+from src.music import Note
 
 def open_file_dialog():
     root = tk.Tk()
