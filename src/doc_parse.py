@@ -28,9 +28,13 @@ def parse_chords_docx(file_path: str, chord_mapping: dict):
         # Pass one to mark which chords have been replaced
         for item in chord_matches:
             # disconnect the root from quality in original chord
-            root, quality = music.clean_chord(item)
-            #transpose root from mapping then reattach the quality
+            root, quality, bass = music.clean_chord(item)
+            # transpose root from mapping then reattach the quality
             transposed_chord = chord_mapping[root] + quality
+            # If chord has inversion, transpose it and reattach
+            if bass:
+                transposed_chord = transposed_chord + chord_mapping[bass]
+            # Add fully transposed chord to dictionary
             converted_chords[item] = transposed_chord
 
             # Attach * flag to indicate chord has been replaced
@@ -45,15 +49,19 @@ def parse_chords_docx(file_path: str, chord_mapping: dict):
         # Pass two to remove marker
         for item in chord_matches:
             # find the transposed chords again
-            root, quality = music.clean_chord(item)
+            root, quality, bass = music.clean_chord(item)
+            # transpose root from mapping then reattach the quality
             transposed_chord = chord_mapping[root] + quality
+            # If chord has inversion, transpose it and reattach
+            if bass:
+                transposed_chord = transposed_chord + chord_mapping[bass]
 
             #remove the * flag that indicated chords were replaced
             paragraph.text = paragraph.text.replace(f'[{transposed_chord}*]', f'[{transposed_chord}]')
-
-    for paragraph in doc.paragraphs:
-        for run in paragraph.runs:
-            print(run.text)
+    # For debugging purposes
+    #for paragraph in doc.paragraphs:
+    #    for run in paragraph.runs:
+    #        print(run.text)
 
     target_file_path = create_target_file_path(file_path)
     doc.save(target_file_path)

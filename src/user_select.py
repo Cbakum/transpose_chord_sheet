@@ -19,27 +19,53 @@ def open_file_dialog():
         return file_path
 
 def get_transpose_params():
-    result = {}
+    semitones = -1
+    scale_degree = -1
 
     def intervals_ret():
+        nonlocal semitones, scale_degree # For purposes of scope
+
+        #Grab interval and direction chosen from table
         interval_chosen = Interval[interval_var.get()]
         direction = Dir[direction_var.get()]
+        
+        # Case when transposition direction is up
         if direction.value == 0:  
-            return_val = interval_chosen.value
+            #return_val = interval_chosen.value
+            semitones = interval_chosen.value[0]
+            scale_degree = interval_chosen.value[1]
+        # Case when transposition direction is down
         else:
+             # Pitch is defined in mod12. Use this wrap around
+             # So that a transposition downwards may be redefined with
+             # a value upwards that is functionally equivalent
              interval = 12 - interval_chosen.value[0]
-             return_val = music.intervals_array[interval].value
-        result["Transpose"] = return_val
+             semitones = music.intervals_array[interval].value[0]
+             scale_degree = music.intervals_array[interval].value[1]
+        # Exit GUI window
         root.quit()
 
     def key_to_key_ret():
+        nonlocal semitones, scale_degree    # For purposes of scope
+        
+        # Grab original and target keys chosen from table
         new = Note[New_Key_var.get()]
         old = Note[Old_Key_var.get()]
+
+        # Find difference between two keys in terms of semitones
         delta = new.value[1] - old.value[1]
+        
+        # Use mod12 wrap around to always define transposition as upwards
         if delta < 0:
              delta = 12 + delta
-        result["Transpose"] = music.intervals_array[delta].value
+        semitones = music.intervals_array[delta].value[0]
+        scale_degree = music.intervals_array[delta].value[1]
+        # Exit GUI window
         root.quit()
+    
+    def window_closed():
+        # Alert python that window has been closed
+        root.quit() 
 
     # Create the main window
     root = tk.Tk()
@@ -84,7 +110,9 @@ def get_transpose_params():
     transpose_button_right = ttk.Button(root, text="Transpose", command=key_to_key_ret)
     transpose_button_right.grid(row=3, column=2, columnspan=2, pady=10)
 
+    root.protocol("WM_DELETE_WINDOW", window_closed)
+
     # Run the main loop
     root.mainloop()
 
-    return result
+    return semitones, scale_degree

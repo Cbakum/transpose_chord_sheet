@@ -53,20 +53,32 @@ def clean_chord(chord: str):
     if chord[1] not in ['b', '#']:
         root = chord[:1]
         quality = chord[1:]
+        bass = ""
     else:
       root = chord[:2]
       quality = chord[2:]
+      bass = ""
+    
+    if '/' in quality:
+       index = quality.find("/")
+       bass = quality[index+1:]
+       quality = quality[:index+1]
+
   else:
      root = chord
      quality = ""
+     bass = ""
 
-  return root, quality
+
+  return root, quality, bass
 
 def transpose_chord(origin: str, delta_pitch_class: int, delta_semitones: int) -> str:
   note_origin = Note[origin.replace("#", "sharp").replace("b", "flat")]
   target_note = None  
 
+  # Mod7 to account for overflow in scale degree
   target_pitch_class = (note_origin.value[2] + delta_pitch_class) % 7
+  # Mod12 to account for overflow in semitones
   target_semitone = (note_origin.value[1] + delta_semitones) % 12
 
   for note in Note:
@@ -74,17 +86,21 @@ def transpose_chord(origin: str, delta_pitch_class: int, delta_semitones: int) -
         target_note = note.value[0]
         break
   
-  # Edge case handling
-  if target_note is None and delta_pitch_class==1:
+  # Accounts for edge case where a minor second is really an augmented unison
+  # Or case where a tritone is a diminished fifth rather than augmented fourth
+  if target_note is None and (delta_pitch_class==1 or delta_pitch_class==3):
      for note in Note:
+        # If note object contains the target semiton, but is in the same pitch class
         if (note.value[1], note.value[2]) == (target_semitone, note_origin.value[2]):
+          # Select the name from that note
           target_note = note.value[0]
           break
 
   if target_note is None:
-    print(f'\nTransposition error.\nOrigin: {origin}')
-    print(f'Scale Degrees: {note_origin.value[2]} + {delta_pitch_class}')
-    print(f'Semitones: {note_origin.value[1]} + {delta_semitones}')
+    # Print statements for debugging
+    #print(f'\nTransposition error.\nOrigin: {origin}')
+    #print(f'Scale Degrees: {note_origin.value[2]} + {delta_pitch_class}')
+    #print(f'Semitones: {note_origin.value[1]} + {delta_semitones}')
     target_note = "ERROR"
 
   return target_note

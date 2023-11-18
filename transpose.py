@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import src.doc_parse as doc
 import src.music as music
 import src.user_select as user
@@ -13,17 +15,21 @@ def main(argv):
 
     # Allow command line args for development purposes
     if arg_len==3:
-        interval = music.intervals_array[int(argv[2])].value
+        delta_semitones = music.intervals_array[int(argv[2])].value[0]
+        delta_pitch_class = music.intervals_array[int(argv[2])].value[1]
         filepath = argv[1]
     elif arg_len==2:
       filepath = argv[1]
-      interval = user.get_transpose_params()["Transpose"]
+      delta_semitones, delta_pitch_class = user.get_transpose_params()
+      if delta_semitones == -1:     
+         raise ValueError("Transposition not selected")
     else:
       filepath = user.open_file_dialog()
-      interval = user.get_transpose_params()["Transpose"]
-
-    delta_pitch_class = interval[1]
-    delta_semitones = interval[0]
+      if not filepath:
+         raise ValueError("Open file failed")
+      delta_semitones, delta_pitch_class = user.get_transpose_params()
+      if delta_semitones == -1:     
+         raise ValueError("Transposition not selected")
 
     # Create transposition dictionary
     chord_mapping = {}
