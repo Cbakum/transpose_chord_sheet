@@ -3,7 +3,15 @@ import src.music as music
 from docx import Document
 import re
 
-def create_target_file_path(original_file_path):
+def create_target_file_path(original_file_path: str) ->str:
+    '''
+    Creates the filename for the target chord sheet\n
+    arg:
+        original_file_path (str)- The name of the source .docx file\n
+    returns:
+        target_file_path (str)- The modified name to save the new .docx file
+    '''
+
     # Find the index of "doc" in the file name
     index = original_file_path.find(".")
 
@@ -21,6 +29,13 @@ def create_target_file_path(original_file_path):
     return target_file_path
 
 def parse_chords_docx(file_path: str, chord_mapping: dict):
+    '''
+    Looks through .docx file for [CHORDS] (only in square brackets),
+    tranposes all chords, and rewrites tranposed chart to new file\n
+    args:
+            file_path (str)- The name of the source document\n
+            chord_mapping (dict)- The translation dictionary from source note to target note
+    '''
     doc = Document(file_path)
     converted_chords = {}
     for paragraph in doc.paragraphs:
@@ -38,15 +53,14 @@ def parse_chords_docx(file_path: str, chord_mapping: dict):
             converted_chords[item] = transposed_chord
 
             # Attach * flag to indicate chord has been replaced
-            # This avoids double replacing a chord on later loops,
-            #  which would create incorrect transposition
+            # This avoids double replacing a chord on later loops, which would create incorrect transposition
             transposed_chord = f'{transposed_chord}*'
 
             # This replaces properly, but messes with formatting
             paragraph.text = paragraph.text.replace(f'[{item}]', f'[{transposed_chord}]')
             #print(f'{item} {transposed_chord}')
 
-        # Pass two to remove marker
+        # Pass two to remove * flag
         for item in chord_matches:
             # find the transposed chords again
             root, quality, bass = music.clean_chord(item)
@@ -65,58 +79,3 @@ def parse_chords_docx(file_path: str, chord_mapping: dict):
 
     target_file_path = create_target_file_path(file_path)
     doc.save(target_file_path)
-
-# Test concept
-def concatenate_runs(paragraph):
-    concatenated_text = ""
-    for run in paragraph.runs:
-        concatenated_text += run.text
-    return concatenated_text
-
-# Test concept
-def replace_chords_docx(file_path, chord_mapping):
-    doc = Document(file_path)
-
-    # First pass: Replace old chords with temporary placeholders
-    for paragraph in doc.paragraphs:
-        for run in paragraph.runs:
-           print(run.text)
-        line_text = concatenate_runs(paragraph)
-
-
-        #try new approach here to concatenate all bold runs
-
-        print("Original Line:", line_text)
-        for run in paragraph.runs:
-           print(run.text)
-        chord_start = 0
-        while '[' in line_text[chord_start:]:
-            chord_start = line_text.find('[', chord_start)
-            chord_end = line_text.find(']', chord_start)
-
-            if chord_start != -1 and chord_end != -1:
-                chord = line_text[chord_start + 1:chord_end]
-                #print("Identified Chord:", chord)
-                if chord in chord_mapping:
-                    transposed_chord = chord_mapping[chord]
-                    # Replace old chord with temporary placeholder
-                    line_text = line_text[:chord_start] + f'[{transposed_chord}~]' + line_text[chord_end + 1:]
-                    chord_start = chord_end + 1
-                else:
-                    # Move the cursor to avoid an infinite loop
-                    chord_start += 1
-            else:
-                break
-
-        # Update the paragraph text with the processed line
-        paragraph.text = line_text.replace('~', '')
-        #print("Processed Line:", paragraph.text)
-
-    #print("Saving")
-    doc.save("test.docx")
-
-#check chord transpositions
-def debug_transpose(old_chords: list, delta_pitch_class, delta_semitones):
-   for old_chord in old_chords:
-    new_chord = music.transpose_chord(old_chord, delta_pitch_class, delta_semitones)
-    print(f'Old Chord: {old_chord}       New Chord: {new_chord}')

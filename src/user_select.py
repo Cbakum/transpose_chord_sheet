@@ -7,18 +7,34 @@ from src.music import Interval
 from src.music import Note
 
 def open_file_dialog():
+    '''
+    Opens a window for the user to select the source file they wish to transpose
+    '''
     root = tk.Tk()
     root.withdraw()  # Hide the main window
 
     file_path = filedialog.askopenfilename(
         title="Select a File",
         filetypes=[("Word Documents", "*.doc*"), ("All files", "*.*")]
+        # Optional: Uncomment next line to add default directory to open
+        #initialdir="/default/directory/to/open/"
     )
 
     if file_path:
         return file_path
 
 def get_transpose_params():
+    '''
+    Opens window for user to decide how they wish to transpose their chord chart.
+    There are two options for transposition:\n
+    One: Pick an interval and a direction to transpose (ex: Up a Major Second). Any
+    transposition downwards will be redefined as an equivalent transposition upwards\n
+    Two: Indicate the original key and the target key (ex: Transpose from C to D). Will
+    be defined as an upwards transposition in all cases\n
+    returns:
+            semitones (int)- The number of semitones (upwards) to tranpose\n
+            scale_degree (int)- The number of scale degrees (upwards) to tranpose
+    '''
     semitones = -1
     scale_degree = -1
 
