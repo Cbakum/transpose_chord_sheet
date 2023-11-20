@@ -79,3 +79,14 @@ def parse_chords_docx(file_path: str, chord_mapping: dict):
 
     target_file_path = create_target_file_path(file_path)
     doc.save(target_file_path)
+
+
+def reset_bold_chords(target_filepath: str):
+    '''
+    File write from parse_chords_docx does not persist bold text in chord symbols.
+    This function parses through the document and restores boldness.\n
+    arg:
+        target_filepath (str)- the file to read from/ write to
+    '''
+    # To write later
+    pass

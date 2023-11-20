@@ -11,12 +11,15 @@ def main(argv):
     arg_len = len(argv)
     # Parse args
     if arg_len not in valid_argv:
-        raise ValueError("Invalid number of command-line arguments. Please provide the required number of arguments.")     
+        raise ValueError("Invalid number of command-line arguments.")     
 
     # Allow command line args for development purposes
     if arg_len==3:
-        delta_semitones = music.intervals_array[int(argv[2])].value[0]
-        delta_pitch_class = music.intervals_array[int(argv[2])].value[1]
+        if int(argv[2])<12 and int(argv[2])>=0:
+          delta_semitones = music.intervals_array[int(argv[2])].value[0]
+          delta_pitch_class = music.intervals_array[int(argv[2])].value[1]
+        else:
+           raise ValueError("Invalid tranposition. Valid range: 0...11")
         filepath = argv[1]
     elif arg_len==2:
       filepath = argv[1]
@@ -44,6 +47,8 @@ def main(argv):
     doc.parse_chords_docx(filepath, chord_mapping)
 
     # Fix bold formatting in document
+    #target_filepath = doc.create_target_file_path(filepath)
+    #doc.reset_bold_chords(target_filepath)
 
 
 if __name__ == "__main__":

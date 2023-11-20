@@ -4,9 +4,27 @@ Parses .docx files for chord symbols within brackets **[CHORD]**, transposes the
 
 ## Description
 
-Wrote this program to make transposing chord sheets easier and faster for ukulele club. This works with .docx files (can come from Word documents or Google Docs). Preserves the original document and creates a copy with the new chord symbols. The main requirement for this program is that all chord symbols must be contained within square brackets:
+This program was written to make transposing chord sheets easier and faster for ukulele club. This works with .docx files (can come from Word documents or Google Docs). It preserves the original document and creates a copy with the new chord symbols. The main requirement for this program is that all chord symbols must be contained within square brackets:
 
 **<p style="text-align: center;">[CHORD]</p>**
+
+A simple music transposition library is included to define notes and intervals mathematically (in terms of semitones and scale degrees). String parsing is used to take in any arbitrary chord symbol and perform the proper transpositions. Complex chord symbols are broken down into up to three component pieces before transposition is applied. For example:
+
+**<p style="text-align: center;">[Ebmaj7/Bb]</p>**
+
+The music library will take this chord and break it down into three component pieces:
+
+**Root** = "Eb"
+
+**Quality** = "maj7/"
+
+**Bass** = "Bb"
+
+The root and bass will be transposed while the quality is left alone. Let's say the desire is to transpose upwards by a Major Second. After transposition, all three pieces can be recombined to form:
+
+**<p style="text-align: center;">[Fmaj7/C]</p>**
+
+As of now, if the chords are in bold, this quality is lost when writing to the new document. The next goal is to maintain boldness in the target documents.
 
 ## Getting Started
 
